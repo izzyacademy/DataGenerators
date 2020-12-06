@@ -76,8 +76,6 @@ public class OrderGeneratorService implements DataGeneratorService, AutoCloseabl
 
     private void generateOrder() {
 
-        boolean proceedToOrderPlacement = true;
-
         List<Customer> customers = this.getCustomers();
 
         int selectedCustomerIndex = RandomUtil.getRandomNumber(0, customers.size());
@@ -93,17 +91,40 @@ public class OrderGeneratorService implements DataGeneratorService, AutoCloseabl
         System.out.println("Customer=" + customer);
         System.out.println("orderSource=" + orderSource);
 
+        List<ProductInventoryLevel> skuLevels = this.getInventoryLevels();
+
+        boolean proceedToOrderPlacement = skuLevels.size() > 0;
+
         if (proceedToOrderPlacement) {
+
             // Create the Order Id
-            int orderId = this.createOrder(customer.getCustomerId(), orderSource);
+            long orderId = this.createOrder(customer.getCustomerId(), orderSource);
 
-            List<ProductInventoryLevel> skuLevels = this.getInventoryLevels();
+            // maximum number of items we can order
+            int maxNumberOfOrderItems = RandomUtil.getRandomNumber(1, skuLevels.size() + 1);
 
-            int numberOfOrderItems = RandomUtil.getRandomNumber(1, skuLevels.size() + 1);
+            int startingIndex = RandomUtil.getRandomNumber(0, skuLevels.size());
 
-            List<ProductInventoryLevel> skuSlice = skuLevels.subList(0, numberOfOrderItems);
+            int endingIndex = Math.min(skuLevels.size() - 1, startingIndex + maxNumberOfOrderItems);
 
-            for (ProductInventoryLevel slide: skuSlice) {
+            List<ProductInventoryLevel> selectedSKUs1 = skuLevels.subList(startingIndex, endingIndex);
+
+            List<ProductInventoryLevel> selectedSKUs = new ArrayList<>();
+
+            if (0 == selectedSKUs1.size()) {
+
+                selectedSKUs.add(skuLevels.get(0));
+
+            } else {
+
+                selectedSKUs.addAll(selectedSKUs1);
+            }
+
+            System.out.println("maxNumberOfOrderItems=" + maxNumberOfOrderItems);
+            System.out.println("numberOfItems=" + selectedSKUs.size() + ", startingIndex=" +
+                    startingIndex + ",endingIndex=" + endingIndex);
+
+            for (ProductInventoryLevel slide: selectedSKUs) {
 
                 int orderItemCount = RandomUtil.getRandomNumber(1, slide.getAvailableCount());
 
@@ -114,17 +135,19 @@ public class OrderGeneratorService implements DataGeneratorService, AutoCloseabl
                 // Add items to the order
                 this.createOrderItems(orderId, productId, skuId, orderItemCount);
             }
-        }
+        } else {
 
-        System.out.println("\n");
+            System.out.println("No items available to order");
+        }
+        
     }
 
-    private int createOrder(final int customerId, final String orderSource) {
+    private long createOrder(final int customerId, final String orderSource) {
 
         final String SQL_SELECT = "INSERT INTO ecommerce.orders (customer_id, order_source, date_created) VALUES " +
                 " (?, ?, NOW())";
 
-        int orderId = 0;
+        long orderId = 0;
 
         try {
 
@@ -139,7 +162,7 @@ public class OrderGeneratorService implements DataGeneratorService, AutoCloseabl
 
             if (resultSet.next()) {
 
-                orderId = resultSet.getInt(1);
+                orderId = resultSet.getLong(1);
 
             }
 
@@ -150,7 +173,7 @@ public class OrderGeneratorService implements DataGeneratorService, AutoCloseabl
         }
     }
 
-    private int createOrderItems(final int orderId, int productId, String skuId, int orderItemCount) {
+    private long createOrderItems(final long orderId, int productId, String skuId, int orderItemCount) {
 
         List<ProductInventoryLevel> skuInventoryLevels = this.getInventoryLevels();
 
@@ -158,13 +181,13 @@ public class OrderGeneratorService implements DataGeneratorService, AutoCloseabl
                 "item_count, date_created) VALUES " +
                 " (?, ?, ?, ?, NOW()) ";
 
-        int orderLineItemId = Integer.MAX_VALUE;
+        long orderLineItemId = Long.MAX_VALUE;
 
         try {
 
             PreparedStatement preparedStatement = conn.prepareStatement(SQL_SELECT_ORDER_ITEMS, Statement.RETURN_GENERATED_KEYS);
 
-            preparedStatement.setInt(1, orderId);
+            preparedStatement.setLong(1, orderId);
             preparedStatement.setInt(2, productId);
             preparedStatement.setString(3, skuId);
             preparedStatement.setInt(4, orderItemCount);
@@ -236,7 +259,8 @@ public class OrderGeneratorService implements DataGeneratorService, AutoCloseabl
         final List<ProductInventoryLevel> inventoryLevels = new ArrayList<>(32);
 
         final String SQL_SELECT = "SELECT sku_id, product_id, available_count, status " +
-                "FROM inventory.product_inventory_levels";
+                "FROM inventory.product_inventory_levels " +
+                "WHERE available_count > 0";
 
         try {
 
