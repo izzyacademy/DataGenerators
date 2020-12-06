@@ -1,38 +1,39 @@
 package com.izzyacademy.data.generators.core;
 
-import com.izzyacademy.data.generators.services.DataGeneratorService;
-import com.izzyacademy.data.generators.services.InventoryReplenishmentService;
-import com.izzyacademy.data.generators.services.OrderGeneratorService;
-import com.izzyacademy.data.generators.services.OrderReturnsService;
+import com.izzyacademy.data.generators.services.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 // Run compiled application as
 // java -jar .\target\streams-app-1.0.0-uber.jar
 public class SweetStreams {
 
+    private static final String DEFAULT_SERVICE = DefaultService.class.getSimpleName();
+
     public static void main(final String[] args) throws Exception {
 
-        int selectionIndex = 0; // which service are we going to run?
+        final Map<String, String> env = System.getenv();
 
-        if (args.length == 1) {
-            selectionIndex = Integer.parseInt(args[0]);
-        }
+        final String serviceName = env.getOrDefault("SERVICE_NAME", DEFAULT_SERVICE);
 
-        // These are the names of Micro Services that process Kafka Streams from Topics
-        final String[] serviceNames = {
-            OrderGeneratorService.class.getName(),
-            InventoryReplenishmentService.class.getName(),
-            OrderReturnsService.class.getName(),
-        };
+        Map<String, String> serviceNames = new HashMap<>(8);
 
+        serviceNames.put(DefaultService.class.getSimpleName(), DefaultService.class.getName());
+        serviceNames.put(OrderGeneratorService.class.getSimpleName(), OrderGeneratorService.class.getName());
+        serviceNames.put(InventoryReplenishmentService.class.getSimpleName(), InventoryReplenishmentService.class.getName());
+        serviceNames.put(OrderReturnsService.class.getSimpleName(), OrderReturnsService.class.getName());
+        serviceNames.put(OrderShipmentService.class.getSimpleName(), OrderShipmentService.class.getName());
+        
         // Select one of the micro services listed above
-        final String serviceName = serviceNames[selectionIndex];
+        final String serviceClass = serviceNames.get(serviceName);
 
         System.out.println();
-        System.out.println("selectionIndex=" + selectionIndex + ", serviceName=" + serviceName);
+        System.out.println("serviceName=" + serviceName + ", serviceClass=" + serviceClass);
         System.out.println();
 
         // All classes must implement the KafkaStreamService interface
-        DataGeneratorService service = (DataGeneratorService) Class.forName(serviceName).newInstance();
+        DataGeneratorService service = (DataGeneratorService) Class.forName(serviceClass).newInstance();
 
         // Run the service
         service.run();

@@ -139,7 +139,7 @@ public class OrderGeneratorService implements DataGeneratorService, AutoCloseabl
 
             System.out.println("No items available to order");
         }
-        
+
     }
 
     private long createOrder(final int customerId, final String orderSource) {
