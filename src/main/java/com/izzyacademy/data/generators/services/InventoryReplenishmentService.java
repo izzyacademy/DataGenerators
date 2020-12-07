@@ -107,8 +107,8 @@ public class InventoryReplenishmentService extends BaseMicroService {
         final String SQL_SELECT = "SELECT DISTINCT a.sku_id, a.product_id, b.status, a.low_water_mark_count, " +
                 "a.high_water_mark_count, b.available_count, " +
                 "(a.high_water_mark_count - b.available_count) AS replenishment_count " +
-                "FROM product_inventory_benchmarks AS a " +
-                "INNER JOIN product_inventory_levels b ON (a.sku_id = b.sku_id) " +
+                "FROM inventory.product_inventory_benchmarks AS a " +
+                "INNER JOIN inventory.product_inventory_levels b ON (a.sku_id = b.sku_id) " +
                 "WHERE (a.high_water_mark_count - b.available_count) > 0 ";
 
         try {
