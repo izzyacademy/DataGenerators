@@ -12,9 +12,11 @@ public class ApplicationConstants {
     private static final String DEFAULT_SHIPMENT_INTERVAL_SECONDS = "5";
     private static final String DEFAULT_SHIPMENT_COUNT = "10";
 
-    private static final String DEFAULT_ORDER_RETURN_INTERVAL_SECONDS = "5";
-    private static final String DEFAULT_ORDER_RETURN_AGE_SECONDS = "5";
-    private static final String DEFAULT_ORDER_RETURN_COUNT = "10";
+    private static final String DEFAULT_ORDER_RETURN_INTERVAL_SECONDS = "2";
+    private static final String DEFAULT_ORDER_RETURN_AGE_SECONDS = "60";
+    private static final String DEFAULT_ORDER_RETURN_COUNT = "64";
+
+    private static final String DEFAULT_REPLENISHMENT_INTERVAL_SECONDS = "10";
 
     // How many seconds to wait before placing orders
     public static final int MIN_ORDER_INTERVAL_SECONDS;
@@ -29,6 +31,8 @@ public class ApplicationConstants {
     public static final int ORDER_RETURN_AGE_SECONDS;
     public static final int ORDER_RETURN_COUNT;
 
+    public static final int REPLENISHMENT_INTERVAL_SECONDS;
+
     static {
 
         final Map<String, String> env = System.getenv();
@@ -42,6 +46,8 @@ public class ApplicationConstants {
         ORDER_RETURN_INTERVAL_SECONDS = getInt("ORDER_RETURN_INTERVAL_SECONDS", DEFAULT_ORDER_RETURN_INTERVAL_SECONDS);
         ORDER_RETURN_AGE_SECONDS = getInt("ORDER_RETURN_AGE_SECONDS", DEFAULT_ORDER_RETURN_AGE_SECONDS);
         ORDER_RETURN_COUNT = getInt("ORDER_RETURN_COUNT", DEFAULT_ORDER_RETURN_COUNT);
+
+        REPLENISHMENT_INTERVAL_SECONDS = getInt("REPLENISHMENT_INTERVAL_SECONDS", DEFAULT_REPLENISHMENT_INTERVAL_SECONDS);
     }
 
     private static double getDouble(final String key, String defaultValue) {
