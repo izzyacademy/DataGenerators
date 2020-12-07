@@ -2,13 +2,10 @@ package com.izzyacademy.data.generators.services;
 
 import com.izzyacademy.data.generators.models.Customer;
 import com.izzyacademy.data.generators.models.ProductInventoryLevel;
-import com.izzyacademy.data.generators.utils.MySQLUtil;
+import com.izzyacademy.data.generators.utils.ApplicationConstants;
 import com.izzyacademy.data.generators.utils.RandomUtil;
 import org.apache.commons.compress.utils.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -16,43 +13,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class OrderGeneratorService implements DataGeneratorService, AutoCloseable {
-
-    private static final Logger logger = LoggerFactory.getLogger(OrderGeneratorService.class);
-
-    /**
-     * Number of Seconds to Wait before next event
-     */
-    public static final String DEFAULT_INTERVAL = "3";
+public class OrderGeneratorService extends BaseMicroService {
 
     private static final String INVENTORY_DATABASE = "inventory";
 
-    private long orderInterval = 1000;
-
     private final List<String> orderSources = Lists.newArrayList();
-
-    private MySQLUtil databaseUtil;
-
-    private Connection conn;
 
     public OrderGeneratorService() {
 
-        final Map<String, String> env = System.getenv();
-
-        final String orderIntervalValue = env.getOrDefault("ORDER_INTERVAL", DEFAULT_INTERVAL);
-
-        this.orderInterval = Long.parseLong(orderIntervalValue) * 1000;
-
-        this.databaseUtil = new MySQLUtil();
-
-        this.conn = this.databaseUtil.getConnection(INVENTORY_DATABASE);
+        super(INVENTORY_DATABASE);
 
         orderSources.add("WEB");
         orderSources.add("MOBILE");
         orderSources.add("PHONE");
         orderSources.add("STORE");
     }
-
 
     @Override
     public void run() {
@@ -63,7 +38,15 @@ public class OrderGeneratorService implements DataGeneratorService, AutoCloseabl
 
                 this.generateOrder();
 
-                logger.info("Sleeping for " + orderInterval + " ms before next order purchase");
+                int minOrderInterval = ApplicationConstants.MIN_ORDER_INTERVAL_SECONDS;
+                int maxOrderInterval = ApplicationConstants.MAX_ORDER_INTERVAL_SECONDS;
+
+                // Number of seconds to wait before placing next order
+                int orderIntervalSeconds = RandomUtil.getRandomNumber(minOrderInterval, maxOrderInterval);
+
+                long orderInterval= orderIntervalSeconds * 1000;
+
+                System.out.println("Sleeping for " + orderInterval + " ms before next order purchase");
                 // Wait for a bit, before creating the next order
                 Thread.sleep(orderInterval);
             }
@@ -98,7 +81,10 @@ public class OrderGeneratorService implements DataGeneratorService, AutoCloseabl
         if (proceedToOrderPlacement) {
 
             // Create the Order Id
-            long orderId = this.createOrder(customer.getCustomerId(), orderSource);
+
+            int customerId = customer.getCustomerId();
+
+            long orderId = this.createOrder(customerId, orderSource);
 
             // maximum number of items we can order
             int maxNumberOfOrderItems = RandomUtil.getRandomNumber(1, skuLevels.size() + 1);
@@ -133,7 +119,7 @@ public class OrderGeneratorService implements DataGeneratorService, AutoCloseabl
                 String skuId = slide.getSkuId();
 
                 // Add items to the order
-                this.createOrderItems(orderId, productId, skuId, orderItemCount);
+                this.createOrderItems(orderId, customerId, productId, skuId, orderItemCount);
             }
         } else {
 
@@ -173,13 +159,13 @@ public class OrderGeneratorService implements DataGeneratorService, AutoCloseabl
         }
     }
 
-    private long createOrderItems(final long orderId, int productId, String skuId, int orderItemCount) {
+    private long createOrderItems(long orderId, int customerId, int productId, String skuId, int orderItemCount) {
 
         List<ProductInventoryLevel> skuInventoryLevels = this.getInventoryLevels();
 
         final String SQL_SELECT_ORDER_ITEMS = "INSERT INTO ecommerce.order_items (order_id, product_id, sku_id, " +
-                "item_count, date_created) VALUES " +
-                " (?, ?, ?, ?, NOW()) ";
+                "item_count, customer_id, date_created) VALUES " +
+                " (?, ?, ?, ?, ?, NOW()) ";
 
         long orderLineItemId = Long.MAX_VALUE;
 
@@ -191,6 +177,7 @@ public class OrderGeneratorService implements DataGeneratorService, AutoCloseabl
             preparedStatement.setInt(2, productId);
             preparedStatement.setString(3, skuId);
             preparedStatement.setInt(4, orderItemCount);
+            preparedStatement.setInt(5, customerId);
 
             int result = preparedStatement.executeUpdate();
 
@@ -235,8 +222,7 @@ public class OrderGeneratorService implements DataGeneratorService, AutoCloseabl
                 int customerId = resultSet.getInt("customer_id");
                 String email = resultSet.getString("email");
 
-                final Customer resultItem = new Customer(customerId, firstName,
-                        lastName, email);
+                final Customer resultItem = new Customer(customerId, firstName, lastName, email);
 
                 customers.add(resultItem);
 
@@ -288,11 +274,5 @@ public class OrderGeneratorService implements DataGeneratorService, AutoCloseabl
         } catch (Exception e) {
             throw new RuntimeException("DB Connection error during query", e);
         }
-    }
-
-    @Override
-    public void close() throws Exception {
-
-        this.databaseUtil.close();
     }
 }
