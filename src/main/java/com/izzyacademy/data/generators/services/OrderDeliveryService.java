@@ -6,14 +6,14 @@ import java.sql.PreparedStatement;
 
 public class OrderDeliveryService extends BaseMicroService {
 
-    private final int shipmentInterval;
+    private final int deliveryInterval;
 
-    private final int shipmentCount;
+    private final int deliveryCount;
 
     public OrderDeliveryService()
     {
-        this.shipmentInterval = ApplicationConstants.SHIPMENT_INTERVAL_SECONDS * 1000;
-        this.shipmentCount = ApplicationConstants.SHIPMENT_COUNT;
+        this.deliveryInterval = ApplicationConstants.SHIPMENT_INTERVAL_SECONDS * 1000;
+        this.deliveryCount = ApplicationConstants.SHIPMENT_COUNT;
     }
 
     @Override
@@ -23,15 +23,16 @@ public class OrderDeliveryService extends BaseMicroService {
 
             while(true) {
 
-                int itemsShipped = this.generateDeliveryEvent();
+                final int itemsDelivered = this.generateDeliveryEvent();
 
                 System.out.println();
-                System.out.println(itemsShipped + " items have been delivered");
-                System.out.println("Sleeping for " + shipmentInterval + " ms before next order delivery");
+                System.out.println(itemsDelivered + " items have been delivered");
+                System.out.println("Target Delivery Count=" + deliveryCount + " items");
+                System.out.println("Sleeping for " + deliveryInterval + " ms before next order delivery");
                 System.out.println();
 
                 // Wait for a bit, before creating the next order
-                Thread.sleep(shipmentInterval);
+                Thread.sleep(deliveryInterval);
             }
 
         } catch (Exception e) {
@@ -48,7 +49,7 @@ public class OrderDeliveryService extends BaseMicroService {
 
             PreparedStatement preparedStatement = conn.prepareStatement(SQL_UPDATE);
 
-            preparedStatement.setInt(1, this.shipmentCount);
+            preparedStatement.setInt(1, this.deliveryCount);
 
             int result = preparedStatement.executeUpdate();
 

@@ -50,16 +50,16 @@ public class ApplicationConstants {
         REPLENISHMENT_INTERVAL_SECONDS = getInt("REPLENISHMENT_INTERVAL_SECONDS", DEFAULT_REPLENISHMENT_INTERVAL_SECONDS);
     }
 
+    private static int getInt(final String key, String defaultValue) {
+        return Integer.parseInt(env.getOrDefault(key, defaultValue));
+    }
+
     private static double getDouble(final String key, String defaultValue) {
         return Double.parseDouble(env.getOrDefault(key, defaultValue));
     }
 
     private static long getLong(final String key, String defaultValue) {
         return Long.parseLong(env.getOrDefault(key, defaultValue));
-    }
-
-    private static int getInt(final String key, String defaultValue) {
-        return Integer.parseInt(env.getOrDefault(key, defaultValue));
     }
 
     private static boolean getBoolean(final String key, String defaultValue) {

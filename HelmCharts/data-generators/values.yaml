@@ -1,0 +1,24 @@
+
+replicaCount: 1
+
+application:
+  labelValue: datagenerator
+
+infrastructure:
+  namespace: datagenerators
+  appName: datagenerator
+
+image:
+  name: "izzyacademy/data-generators"
+  pullPolicy: IfNotPresent
+  tag: "1.0"
+
+resources:
+  limits:
+     cpu: 1000m
+     memory: 4096Mi
+  requests:
+     cpu: 750m
+     memory: 2048Mi
+
+# helm upgrade --install data-generators ./data-generators

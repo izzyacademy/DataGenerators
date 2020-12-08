@@ -12,11 +12,11 @@ import java.util.List;
 
 public class OrderReturnsService extends BaseMicroService {
 
-    private final int orderReturnIntervalSeconds;
+    private int orderReturnIntervalSeconds;
 
-    private final int orderItemReturnCount;
+    private int orderItemReturnCount;
 
-    private final int orderItemAgeSeconds;
+    private int orderItemAgeSeconds;
 
     public OrderReturnsService()
     {
@@ -35,6 +35,7 @@ public class OrderReturnsService extends BaseMicroService {
                 generateReturnEvent();
 
                 System.out.println();
+                System.out.println("orderItemAgeSeconds=" + orderItemAgeSeconds + ", maxOrderItemReturnCount=" + orderItemReturnCount);
                 System.out.println("Sleeping for " + orderReturnIntervalSeconds + " ms before next order item return");
                 System.out.println();
 

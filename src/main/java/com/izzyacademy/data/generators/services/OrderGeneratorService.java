@@ -46,6 +46,7 @@ public class OrderGeneratorService extends BaseMicroService {
 
                 long orderInterval= orderIntervalSeconds * 1000;
 
+                System.out.println("minOrderInterval=" + minOrderInterval + "s, maxOrderInterval=" + maxOrderInterval + "s ");
                 System.out.println("Sleeping for " + orderInterval + " ms before next order purchase");
                 // Wait for a bit, before creating the next order
                 Thread.sleep(orderInterval);

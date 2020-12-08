@@ -27,6 +27,7 @@ public class OrderShipmentService extends BaseMicroService {
 
                 System.out.println();
                 System.out.println(itemsShipped + " items have been shipped");
+                System.out.println("shipmentCount=" + shipmentCount);
                 System.out.println("Sleeping for " + shipmentInterval + " ms before next order shipment");
                 System.out.println();
 

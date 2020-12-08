@@ -1,0 +1,11 @@
+apiVersion: v2
+
+name: Data Generators
+
+description: A Helm chart for deploying data generator applications to Kubernetes
+
+type: application
+
+version: 1.0
+
+appVersion: 2.5.0

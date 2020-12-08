@@ -10,7 +10,7 @@ import java.util.List;
 
 public class InventoryReplenishmentService extends BaseMicroService {
 
-    private final int replenishmentIntervalSeconds;
+    private int replenishmentIntervalSeconds;
 
     public InventoryReplenishmentService() {
         this.replenishmentIntervalSeconds = ApplicationConstants.REPLENISHMENT_INTERVAL_SECONDS * 1000;
@@ -23,13 +23,11 @@ public class InventoryReplenishmentService extends BaseMicroService {
 
             while (true) {
 
-                int itemsReplenished = this.generateReplenishmentEvent();
+                final int itemsReplenished = this.generateReplenishmentEvent();
 
                 System.out.println();
                 System.out.println(itemsReplenished + " items have been replenished");
                 System.out.println("Sleeping for " + replenishmentIntervalSeconds + " ms before next replenishment");
-                System.out.println();
-                System.out.println();
                 System.out.println();
 
                 // Wait for a bit, before creating the next order
