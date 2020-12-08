@@ -22,3 +22,4 @@ resources:
      memory: 2048Mi
 
 # helm upgrade --install data-generators ./data-generators
+# helm uninstall data-generators
