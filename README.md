@@ -27,12 +27,12 @@ The values file in the HelmCharts directory contains config settings you can adj
 
 cd HelmCharts
 
-vim values.yaml
+# Adjust the config settings if necessary to your preferences
+vim data-generators/values.yaml
 
 ````
 
-You can run the following commands below to install or uninstall the data generator applications
-
+You can run the following commands below to install or uninstall all the data generator micro services
 
 ````shell script
 
@@ -56,4 +56,3 @@ export SERVICE_NAME=OrderGeneratorService
 java -jar target/data-generator-1.0.0-uber.jar 
 
 ```
-
