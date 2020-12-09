@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "{{ .Values.infrastructure.appName }}-order-generator"
+  name: "order-generator"
   namespace: "{{ .Values.infrastructure.namespace }}"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: "{{ .Values.infrastructure.appName }}-order-generator"
+      app: "order-generator"
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: "{{ .Values.infrastructure.appName}}-order-generator"
+        app: "order-generator"
     spec:
       containers:
       - image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
@@ -28,3 +28,29 @@ spec:
         env:
         - name: SERVICE_NAME
           value: OrderGeneratorService
+        - name: MYSQL_HOST
+          value: "{{ .Values.config.mysql_host }}"
+        - name: MYSQL_PORT
+          value: "{{ .Values.config.mysql_port }}"
+        - name: MYSQL_USER
+          value: "{{ .Values.config.mysql_username }}"
+        - name: MYSQL_PASS
+          value: "{{ .Values.config.mysql_password }}"
+        - name: MYSQL_DATABASE
+          value: "{{ .Values.config.mysql_database }}"
+        - name: MIN_ORDER_INTERVAL_SECONDS
+          value: "{{ .Values.config.min_order_interval_seconds }}"
+        - name: MAX_ORDER_INTERVAL_SECONDS
+          value: "{{ .Values.config.max_order_interval_seconds }}"
+        - name: SHIPMENT_INTERVAL_SECONDS
+          value: "{{ .Values.config.shipment_interval_seconds }}"
+        - name: SHIPMENT_COUNT
+          value: "{{ .Values.config.shipment_count }}"
+        - name: ORDER_RETURN_INTERVAL_SECONDS
+          value: "{{ .Values.config.order_return_interval_seconds }}"
+        - name: ORDER_RETURN_AGE_SECONDS
+          value: "{{ .Values.config.order_return_age_seconds }}"
+        - name: ORDER_RETURN_COUNT
+          value: "{{ .Values.config.order_return_count }}"
+        - name: REPLENISHMENT_INTERVAL_SECONDS
+          value: "{{ .Values.config.replenishment_interval_seconds }}"

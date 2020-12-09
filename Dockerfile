@@ -37,10 +37,10 @@ COPY ${JAR_FILE} app.jar
 ENTRYPOINT ["java","-jar","/app.jar"]
 
 # Command to build and push the new Docker image to the remote repository
-# docker build . -t izzyacademy/data-generators:1.0
-# docker push izzyacademy/data-generators:1.0
+# docker build . -t izzyacademy/data-generators:2.0
+# docker push izzyacademy/data-generators:2.0
 
 
 # docker stop data-generators
 # docker rm data-generators
-# docker run --env-file ./env.list --name data-generators izzyacademy/data-generators:1.0
+# docker run --env-file ./env.list --name data-generators izzyacademy/data-generators:2.0
