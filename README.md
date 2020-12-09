@@ -44,6 +44,10 @@ helm uninstall data-generators
 
 If you want to run the service locally, you can compile it with Maven and then set the environment variables before running the jar files
 
+However, you would have to run each service in a separate window or Terminal Tab seperately.
+
+Running it on the Kubernetes cluster, via the Helm Charts is my preferred method
+
 ````shell script
 
 # Compile the application
